@@ -4,7 +4,8 @@ from .schema import Skill, SkillDTO
 from .models import SkillDTO
 # from sqlalchemy.orm import Session
 # from sqlalchemy import select
-from sqlmodel import Session, select
+from sqlmodel import Session, select,update
+
 
 router = APIRouter(
     prefix="/skills",
@@ -44,6 +45,23 @@ def create_skill(skill: SkillDTO):
          raise HTTPException(status_code=501, detail=f"ex : {ex}")
         finally:
           session.close()
+
+@router.put("/edit/")
+def edit_skill(skill: SkillDTO):
+    with Session(engine) as session:
+        try:
+            statement = (update(Skill).where(Skill.title == skill.title).values(experience=skill.experience, description=skill.description))
+            session.execute(statement)
+            session.commit()
+            return { "edited": skill.title }
+        except Exception as ex:
+            print("exception: ", ex)
+            raise HTTPException(status_code=501, detail=f"ex : {ex}")
+        finally:
+            session.close()
+
+
+
     
 
   
