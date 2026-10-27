@@ -4,7 +4,7 @@ from .schema import Skill, SkillDTO
 from .models import SkillDTO
 # from sqlalchemy.orm import Session
 # from sqlalchemy import select
-from sqlmodel import Session, select,update
+from sqlmodel import Session, select,update, delete
 
 
 router = APIRouter(
@@ -60,7 +60,22 @@ def edit_skill(skill: SkillDTO):
         finally:
             session.close()
 
+@router.delete("/delete")
+def delete_skill(id: int):
+    with Session(engine) as session:
+        try:
+            statement = select(Skill).where(Skill.id == id)
+            records = session.execute(statement).first()
+            for record in records:
+                session.delete(record)
+            session.commit()
+            return {"deleted":id }
+        except Exception as ex:
+            print("exception: ", ex)
+            raise HTTPException(status_code=501, detail=f"ex : {ex}")
 
+        finally:
+            session.close()
 
     
 
